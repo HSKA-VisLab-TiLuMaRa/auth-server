@@ -1,20 +1,58 @@
 'use strict';
+let request = require('request');
 
-const users = [
-  { id: '1', username: 'bob', password: 'secret', name: 'Bob Smith' },
-  { id: '2', username: 'joe', password: 'password', name: 'Joe Davis' },
+const users = [{
+    id: '1',
+    username: 'bob',
+    password: 'secret',
+    name: 'Bob Smith'
+  },
+  {
+    id: '2',
+    username: 'joe',
+    password: 'password',
+    name: 'Joe Davis'
+  },
 ];
 
 module.exports.findById = (id, done) => {
-  for (let i = 0, len = users.length; i < len; i++) {
-    if (users[i].id === id) return done(null, users[i]);
-  }
-  return done(new Error('User Not Found'));
+  request.get('http://localhost:8083/users/' + id).on('response', function(response) {
+      // console.log(response.statusCode) // 200
+      // console.log(response.headers['content-type']) // 'image/png'
+      if (response.statusCode !== 200) {
+        return done(new Error('User not found'));
+      }
+      response.setEncoding('utf8');
+      response.on('data', function (data) {
+        // console.log('data', data);
+        if (data) {
+          return done(null, JSON.parse(data));
+        } else {
+          return done(new Error('User not found'));
+        }
+      });
+    }).on('error', function(err) {
+      return done(new Error('User not found'));
+    });
 };
 
 module.exports.findByUsername = (username, done) => {
-  for (let i = 0, len = users.length; i < len; i++) {
-    if (users[i].username === username) return done(null, users[i]);
-  }
-  return done(new Error('User Not Found'));
+  request.get('http://localhost:8083/usersByUsername/' + username).on('response', function(response) {
+      // console.log(response.statusCode) // 200
+      // console.log(response.headers['content-type']) // 'image/png'
+      if (response.statusCode !== 200) {
+        return done(new Error('User not found'));
+      }
+      response.setEncoding('utf8');
+      response.on('data', function (data) {
+        // console.log('data', data);
+        if (data) {
+          return done(null, JSON.parse(data));
+        } else {
+          return done(new Error('User not found'));
+        }
+      });
+    }).on('error', function(err) {
+      return done(new Error('User not found'));
+    });
 };

@@ -17,9 +17,16 @@ const db = require('../db');
 passport.use(new LocalStrategy(
   (username, password, done) => {
     db.users.findByUsername(username, (error, user) => {
-      if (error) return done(error);
-      if (!user) return done(null, false);
-      if (user.password !== password) return done(null, false);
+      if (error) {
+        return done(error);
+      }
+      if (!user) {
+        return done(null, false);
+      }
+      if (user.password !== password) {
+        return done(null, false);
+      }
+      console.log('passport user 2', user);
       return done(null, user);
     });
   }
