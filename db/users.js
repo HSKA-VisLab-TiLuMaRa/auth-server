@@ -1,20 +1,6 @@
 'use strict';
 let request = require('request');
 
-const users = [{
-    id: '1',
-    username: 'bob',
-    password: 'secret',
-    name: 'Bob Smith'
-  },
-  {
-    id: '2',
-    username: 'joe',
-    password: 'password',
-    name: 'Joe Davis'
-  },
-];
-
 module.exports.findById = (id, done) => {
   request.get('http://localhost:8083/users/' + id).on('response', function(response) {
       // console.log(response.statusCode) // 200

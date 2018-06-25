@@ -154,6 +154,7 @@ server.exchange(oauth2orize.exchange.clientCredentials((client, scope, done) => 
 module.exports.authorization = [
   login.ensureLoggedIn(),
   server.authorization((clientId, redirectUri, done) => {
+    console.log("TEST AUTH"),
     db.clients.findByClientId(clientId, (error, client) => {
       if (error) return done(error);
       // WARNING: For security purposes, it is highly advisable to check that

@@ -35,4 +35,4 @@ app.post('/oauth/token', routes.oauth2.token);
 app.get('/api/userinfo', routes.user.info);
 app.get('/api/clientinfo', routes.client.info);
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 8099);
