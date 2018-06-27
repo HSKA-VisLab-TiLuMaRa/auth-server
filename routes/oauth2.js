@@ -5,6 +5,7 @@ const passport = require('passport');
 const login = require('connect-ensure-login');
 const db = require('../db');
 const utils = require('../utils');
+const jwt = require('jsonwebtoken');
 
 // Create OAuth 2.0 server
 const server = oauth2orize.createServer();
@@ -47,7 +48,7 @@ server.deserializeClient((id, done) => {
 
 server.grant(oauth2orize.grant.code((client, redirectUri, user, ares, done) => {
   const code = utils.getUid(16);
-  db.authorizationCodes.save(code, client.id, redirectUri, user.id, (error) => {
+  db.authorizationCodes.save(code, client.id, redirectUri, user, (error) => {
     if (error) return done(error);
     return done(null, code);
   });
@@ -60,12 +61,14 @@ server.grant(oauth2orize.grant.code((client, redirectUri, user, ares, done) => {
 // values.
 
 server.grant(oauth2orize.grant.token((client, user, ares, done) => {
-  const token = utils.getUid(256);
-  db.accessTokens.save(token, user.id, client.clientId, (error) => {
-    if (error) return done(error);
-    return done(null, token);
-  });
-}));
+  console.log("GENERATING TOKEN");
+  var token = jwt.sign({user: user.id, role: user.roleId}, 'secret');
+    console.log(token);
+    db.accessTokens.save(token, authCode.userId, authCode.clientId, function(error) {
+        if (error) return done(error);
+      return done(null, token);
+      });
+    }))
 
 // Exchange authorization codes for access tokens. The callback accepts the
 // `client`, which is exchanging `code` and any `redirectUri` from the
@@ -78,12 +81,22 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectUri, done) => {
     if (error) return done(error);
     if (client.id !== authCode.clientId) return done(null, false);
     if (redirectUri !== authCode.redirectUri) return done(null, false);
-
-    const token = utils.getUid(256);
-    db.accessTokens.save(token, authCode.userId, authCode.clientId, (error) => {
-      if (error) return done(error);
+    console.log("CREATING JWT 1");
+    console.log(authCode);
+    //jwt.sign({user: user.id, role: user.roleId}, 'secret', {algorithm: 'RS256'}, function(err, token) {
+    //  console.log(token);
+    //  if(err) {console.log(err);}
+    //  db.accessTokens.save(token, authCode.userId, authCode.clientId, function(error) {
+    //    if (error) return done(error);
+    //    return done(null, token);
+    //  });
+    // });
+    var token = jwt.sign({user: authCode.userId, role: authCode.role}, 'secret');
+    console.log(token);
+    db.accessTokens.save(token, authCode.userId, authCode.clientId, function(error) {
+        if (error) return done(error);
       return done(null, token);
-    });
+      });
   });
 }));
 
@@ -105,11 +118,14 @@ server.exchange(oauth2orize.exchange.password((client, username, password, scope
       if (!user) return done(null, false);
       if (password !== user.password) return done(null, false);
       // Everything validated, return the token
-      const token = utils.getUid(256);
-      db.accessTokens.save(token, user.id, client.clientId, (error) => {
+      console.log("CREATING JWT 2");
+      var token = jwt.sign({user: user.id, role: user.roleId}, 'secret');
+    console.log(token);
+    db.accessTokens.save(token, authCode.userId, authCode.clientId, function(error) {
         if (error) return done(error);
-        return done(null, token);
+      return done(null, token);
       });
+      
     });
   });
 }));
@@ -126,12 +142,15 @@ server.exchange(oauth2orize.exchange.clientCredentials((client, scope, done) => 
     if (!localClient) return done(null, false);
     if (localClient.clientSecret !== client.clientSecret) return done(null, false);
     // Everything validated, return the token
-    const token = utils.getUid(256);
-    // Pass in a null for user id since there is no user with this grant type
-    db.accessTokens.save(token, null, client.clientId, (error) => {
-      if (error) return done(error);
-      return done(null, token);
+    jwt.sign({user: user.id, role:user.roleId}, 'secret', {}, function(err, token) {
+      console.log(token);
+      console.log("CREATING JWT 3");
+      db.accessTokens.save(token, null, client.clientId, (error) => {
+        if (error) return done(error);
+        return done(null, token);
+      });
     });
+    // Pass in a null for user id since there is no user with this grant type
   });
 }));
 
