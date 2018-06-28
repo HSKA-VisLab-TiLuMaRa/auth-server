@@ -3,6 +3,7 @@
 const tokens = {};
 
 module.exports.find = (key, done) => {
+  console.log("KEY", key);
   if (tokens[key]) return done(null, tokens[key]);
   return done(new Error('Token Not Found'));
 };
@@ -15,6 +16,7 @@ module.exports.findByUserIdAndClientId = (userId, clientId, done) => {
 };
 
 module.exports.save = (token, userId, clientId, done) => {
+  console.log("TOKEN", token);
   tokens[token] = { userId, clientId };
   done();
 };
