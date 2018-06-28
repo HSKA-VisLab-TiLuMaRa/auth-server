@@ -20,7 +20,7 @@ module.exports.info = [
     }
     response.json({
       client_id: request.user.id,
-      client_role: role,
+      authorities: role,
       // name: request.user.name,
       scope: request.authInfo.scope
     });
