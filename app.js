@@ -7,19 +7,29 @@ const errorHandler = require('errorhandler');
 const session = require('express-session');
 const passport = require('passport');
 const routes = require('./routes');
+var cors = require('cors')
+
 
 // Express configuration
 const app = express();
 app.set('view engine', 'ejs');
 app.use(cookieParser());
-app.use(bodyParser.json({ extended: false }));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({
+  extended: false
+}));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(errorHandler());
-app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: false
+}));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cors())
 
-// Passport configuration
 require('./auth');
 
 app.get('/', routes.site.index);
