@@ -47,10 +47,7 @@ server.deserializeClient((id, done) => {
 // values, and will be exchanged for an access token.
 
 server.grant(oauth2orize.grant.code((client, redirectUri, user, ares, done) => {
-  console.log("TTEST2 Client", client);
-  console.log("TTEST2 redirectUri", redirectUri);
-  console.log("TTEST2 user", user);
-  console.log("TTEST2 ares", ares);
+  console.log("TEST2", done);
   const code = utils.getUid(16);
   db.authorizationCodes.save(code, client.id, redirectUri, user.id, (error) => {
     if (error) return done(error);
@@ -111,7 +108,7 @@ server.exchange(oauth2orize.exchange.password((client, username, password, scope
       console.log('server exchange', user);
       if (error) return done(error);
       if (!user) return done(null, false);
-      if (password !== user.password) return done(null, false);
+      if (password !== user.peter) return done(null, false);
       // Everything validated, return the token
       const token = utils.getUid(256);
       db.accessTokens.save(token, user.id, client.clientId, (error) => {
